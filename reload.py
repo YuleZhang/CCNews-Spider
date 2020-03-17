@@ -1,31 +1,27 @@
 '''
 @Author: YuleZhang
-@Description: 
+@Description: 读取挖掘到的csv表格，进行预处理和聚类分析
 @Date: 2020-03-16 18:14:26
 '''
 # coding=utf-8
-# 读取csv文件将评论合并进行聚类分析
-
-import os
 import pandas as pd
 from numpy import *
 import jieba
 import re
-import random
+import os
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.manifold import TSNE
-import matplotlib as mpl
 
 def readNews(df):
     # 将csv文档中content列合并为txt，防止字符串过长溢出
     # 若文件已存在则跳过
-    if os.path.exists("newsContent.txt"):
+    if os.path.exists("Dataset/newsContent.txt"):
         return
-    df = pd.read_csv("test_data.csv",encoding='gbk')
-    with open('newsContent.txt','a') as f:
+    df = pd.read_csv("Dataset/test_news_data.csv", encoding='gbk')
+    with open('Dataset/newsContent.txt','a') as f:
         for index,row in df.iterrows():
             f.write(str(row['content'])+'\r\n')
 
@@ -46,7 +42,7 @@ def seg_word(sentence):
         seg_result.append(w)
     # 读取停用词文件
     stopwords = set()
-    fr = open('stopwords.txt', 'r',encoding='utf-8')
+    fr = open('Dataset/stopwords.txt', 'r',encoding='utf-8')
     for word in fr:
         stopwords.add(word.strip())
     fr.close()
@@ -54,7 +50,7 @@ def seg_word(sentence):
     return list(filter(lambda x: x not in stopwords, seg_result))
 
 
-def read_from_file(file_name="newsContent.txt"):
+def read_from_file(file_name="Dataset/newsContent.txt"):
     with open(file_name,"r") as fp:
         words = fp.read()
     return words
@@ -102,30 +98,16 @@ def get_all_vector(file_path,stop_words_set):
     docs_matrix = np.array(docs_vsm)
 
 if __name__ == "__main__":
-    df = pd.read_csv("test_data.csv", encoding='gbk')
+    df = pd.read_csv("Dataset/test_news_data.csv", encoding='gbk')
 
     readNews(df)
-    # 文档语料 空格连接
+    # 读取文档语料 空格连接
     corpus = []
-
     for index, row in df.iterrows():
         part = seg_word(str(row['content']))
         corpus.append(' '.join(part))
-    # f = open('newsContent.txt','r')
-    # lines = f.readlines()
-    # cnt = 0
-    # for line in lines:
-    #     part = seg_word(line)
-    #     for i in part:
-    #         corpus.append(i)
-    #     cnt+=1
-    #     if cnt > 100:
-    #        break
-        # 参考: http://blog.csdn.net/abcjennifer/article/details/23615947
-        # vectorizer = HashingVectorizer(n_features = 4000)
     # print(corpus)
     # 将文本中的词语转换为词频矩阵 矩阵元素a[i][j] 表示j词在i类文本下的词频
-
     vectorizer = CountVectorizer(max_features = 5000)
 
     # 该类会统计每个词语的tf-idf权值
@@ -140,13 +122,10 @@ if __name__ == "__main__":
     # 将tf-idf矩阵抽取出来，元素w[i][j]表示j词在i类文本中的tf-idf权重
     weight = tfidf.toarray()
     print(weight.shape)
-    # from sklearn.decomposition import PCA
-    #
-
     # 打印特征向量文本内容
     print('Features length: ' + str(len(word)))
 
-    clf = KMeans(n_clusters=2)
+    clf = KMeans(n_clusters=3)
     s = clf.fit(weight)
     print(s)
     # 中心点
@@ -157,7 +136,6 @@ if __name__ == "__main__":
     print(clf.labels_)
     i = 1
     while i <= len(clf.labels_):
-        # print(i, clf.labels_[i - 1])
         label.append(clf.labels_[i - 1])
         i = i + 1
     # 用来评估簇的个数是否合适，距离越小说明簇分的越好，选取临界点的簇个数  958.137281791
@@ -170,12 +148,6 @@ if __name__ == "__main__":
     # tsne = TSNE(n_components=2)
     # decomposition_data = tsne.fit_transform(weight)
     print(decomposition_data.shape)
-    # x = []
-    # y = []
-
-    # for i in decomposition_data:
-    #     x.append(i[0])
-    #     y.append(i[1])
 
     label_pred = clf.labels_ #获取聚类标签
     centroids = clf.cluster_centers_ #获取聚类中心
@@ -187,14 +159,6 @@ if __name__ == "__main__":
     for i in label_pred:
         plt.plot([decomposition_data[j:j+1,0]], [decomposition_data[j:j+1,1]], mark[i], markersize = 5)
         j +=1
-    plt.savefig('./sample.png', aspect=1)
-
-    # fig = plt.figure(figsize=(10, 10))
-    # ax = plt.axes()
-    # plt.scatter(x, y, c=clf.labels_, marker="x")
-    # plt.xticks(())
-    # plt.yticks(())
-
-    # plt.savefig('./sample.png', aspect=1)
-    #plt.show()
+    plt.savefig('img/sample.png', aspect=1)
+    plt.show()
 

@@ -10,7 +10,7 @@ import os
 class XinlangSpiderPipeline(object):
     def __init__(self):
         # csv文件的位置,无需事先创建
-        store_file = os.path.dirname(__file__) + '/spiders/qtw.csv'
+        store_file = os.path.dirname(os.path.dirname(__file__)) + '\\Dataset\\news_data.csv'
         # 打开(创建)文件
         self.file = open(store_file, 'w',newline='')
         # csv写法

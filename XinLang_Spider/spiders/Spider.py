@@ -7,12 +7,11 @@ head = {"Sec-Fetch-Dest":"document","Sec-Fetch-Mode":"navigate","Upgrade-Insecur
 import os
 import sys
 import json
-import time
 import scrapy
 from fake_useragent import UserAgent
 sys.path.append(os.path.abspath('C:/Users/Administrator/PycharmProjects/Scrapy_XinLang_Spider/XinLang_Spider/XinLang_Spider'))
 from items import XinlangSpiderItem
-import re
+
 ua = UserAgent()
 
 header_getUrl = {
