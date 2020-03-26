@@ -105,7 +105,7 @@ class XinlangSpiderDownloaderMiddleware(object):
             print('状态码异常:'+str(response.status))
             time.sleep(random.randint(3, 5))
             # rand_host = random.sample(settings.BACKUP_HEADERS_HOST, 1) # 从备用Host中随机选一个重试
-            return request
+            return response
         return response
         # Must either;
         # - return a Response object

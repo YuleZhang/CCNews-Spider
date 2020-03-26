@@ -4,6 +4,8 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+from twisted.enterprise import adbapi
+import pymysql
 import csv
 import os
 
@@ -11,7 +13,7 @@ class XinlangSpiderPipeline(object):
     def __init__(self):
         # csv文件的位置,无需事先创建
         store_file = os.path.dirname(os.path.dirname(__file__)) + '\\Dataset\\news_data.csv'
-        # 打开(创建)文件
+        #打开(创建)文件
         self.file = open(store_file, 'w',newline='')
         # csv写法
         self.writer = csv.writer(self.file)
@@ -30,4 +32,3 @@ class XinlangSpiderPipeline(object):
     def close_spider(self, spider):
         # 关闭爬虫时顺便将文件保存退出
         self.file.close()
-

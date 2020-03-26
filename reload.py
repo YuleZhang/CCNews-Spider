@@ -6,6 +6,7 @@
 # coding=utf-8
 import pandas as pd
 from numpy import *
+import numpy as np
 import jieba
 import re
 import os
@@ -13,14 +14,26 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.manifold import TSNE
+from mysql_operate import csv2mysql
+plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
+plt.rcParams['axes.unicode_minus']=False #用来正常显示负号
+MYSQL_DB_NAME = 'SigNews'
+MYSQL_TB_NAME = 'newsItem'
+MYSQL_HOST = 'localhost'
+MYSQL_PORT = 3306
+MYSQL_USER = 'root'
+MYSQL_PASSWORD = ''
 
 def readNews(df):
     # 将csv文档中content列合并为txt，防止字符串过长溢出
     # 若文件已存在则跳过
+    df = pd.read_csv("Dataset/test_news_data.csv", encoding='gbk')
+    df = df.astype(object).where(pd.notnull(df), None)
+    print(df.head())
     if os.path.exists("Dataset/newsContent.txt"):
         return
-    df = pd.read_csv("Dataset/test_news_data.csv", encoding='gbk')
+    print('数据库导入')
+    csv2mysql(MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB_NAME, MYSQL_TB_NAME, df)
     with open('Dataset/newsContent.txt','a') as f:
         for index,row in df.iterrows():
             f.write(str(row['content'])+'\r\n')
@@ -82,12 +95,9 @@ def get_all_vector(file_path,stop_words_set):
         doc = del_stop_words(post,stop_words_set)
         docs.append(doc)
         word_set |= set(doc)
-        #print len(doc),len(word_set)
 
     word_set = list(word_set)
     docs_vsm = []
-    #for word in word_set[:30]:
-        #print word.encode("utf-8"),
     for doc in docs:
         temp_vector = []
         for word in word_set:
@@ -124,8 +134,9 @@ if __name__ == "__main__":
     print(weight.shape)
     # 打印特征向量文本内容
     print('Features length: ' + str(len(word)))
-
-    clf = KMeans(n_clusters=3)
+    # 生成簇个数
+    n_cluster = 3 
+    clf = KMeans(n_clusters=n_cluster)
     s = clf.fit(weight)
     print(s)
     # 中心点
@@ -141,8 +152,17 @@ if __name__ == "__main__":
     # 用来评估簇的个数是否合适，距离越小说明簇分的越好，选取临界点的簇个数  958.137281791
     print('簇个数评估')
     print(clf.inertia_)
+    # 生成簇标签
+    order_centroids = clf.cluster_centers_.argsort()[:, ::-1]
+    terms = vectorizer.get_feature_names()
+    print(vectorizer.get_stop_words())
+    for i in range(n_cluster): 
+        print("Cluster %d:" % i, end='')
+        for ind in order_centroids[i, :10]:
+            print(' %s' % terms[ind], end='')
+        print()
 
-    # 使用T-SNE算法，对权重进行降维，准确度比PCA算法高，但是耗时长
+    # 使用PCA算法进行降维
     pca = PCA(n_components=2)   # 保证降维后的数据保持80%的信息,whiten使得得到的数据进行归一化
     decomposition_data=pca.fit_transform(weight)   #训练降维后的数据，并进行标准化、归一化
     # tsne = TSNE(n_components=2)
@@ -152,13 +172,18 @@ if __name__ == "__main__":
     label_pred = clf.labels_ #获取聚类标签
     centroids = clf.cluster_centers_ #获取聚类中心
     inertia = clf.inertia_ # 获取聚类准则的总和
-    mark = ['or', 'ob', 'og', 'ok', '^r', '+r', 'sr', 'dr', '<r', 'pr']
-    #这里'or'代表中的'o'代表画圈，'r'代表颜色为红色，后面的依次类推
-    color = 0
-    j = 0 
-    for i in label_pred:
-        plt.plot([decomposition_data[j:j+1,0]], [decomposition_data[j:j+1,1]], mark[i], markersize = 5)
-        j +=1
-    plt.savefig('img/sample.png', aspect=1)
+    label_index = []
+    label_name = []
+    label_color = ['red','green','blue']
+    label_mark = ['o','*','+']
+    for i in range(n_cluster):
+        label_name = terms[order_centroids[i, 0]]
+        labelIndex = np.argwhere(label_pred == i)
+        x_data = [decomposition_data[idx[0],0] for idx in labelIndex]
+        y_data = [decomposition_data[idx[0],1] for idx in labelIndex]
+        plt.scatter(x_data, y_data, c=label_color[i], marker=label_mark[i], label=label_name)
+    plt.legend(loc=2)
+
+    plt.savefig('img/good_sample.png', aspect=1)
     plt.show()
 

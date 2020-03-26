@@ -71,8 +71,10 @@ RETRY_TIMES = 3
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+# 'XinLang_Spider.pipelines.XinlangSpiderPipeline': 250,
 ITEM_PIPELINES = {
-   'XinLang_Spider.pipelines.XinlangSpiderPipeline': 250
+
+   'XinLang_Spider.pipelines.XinlangSpiderPipeline': 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
