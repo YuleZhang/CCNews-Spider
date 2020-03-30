@@ -19,14 +19,21 @@ class XinlangSpiderPipeline(object):
         self.writer = csv.writer(self.file)
         # 初始化表头
         print(['title'.encode('utf-8'), 'content'.encode(), 'url'.encode(), 'date'.encode(), 'source'.encode()])
-        self.writer.writerow(['title', 'content', 'url', 'date', 'source'])
+        self.writer.writerow(['title', 'content', 'url', 'date', 'source','website','theme'])
 
     def process_item(self, item, spider):
         # 判断字段值不为空再写入文件
         # self.filename = item['sonUrl'][7:-6].replace('/', '_') + '.txt'
         # self.file = open(item['subpath'] + '/' + self.filename, 'w')
         # self.file.write(item['sonUrl'] + '\n' + item['head'] + '\n' + item['time'] + '\n' + item['content'])
-        self.writer.writerow([item['title'].encode("gbk", 'ignore').decode("gbk", "ignore"), item['content'].encode("gbk", 'ignore').decode("gbk", "ignore"), item['sonUrl'], item['time'], item['source'].encode("gbk", 'ignore').decode("gbk", "ignore")])
+        self.writer.writerow([item['title'].encode("gbk", 'ignore').decode("gbk", "ignore"),
+                              item['content'].encode("gbk", 'ignore').decode("gbk", "ignore"),
+                              item['sonUrl'],
+                              item['time'],
+                              item['source'].encode("gbk", 'ignore').decode("gbk", "ignore"),
+                              item['website'],
+                              item['theme']
+                              ])
         return item
 
     def close_spider(self, spider):

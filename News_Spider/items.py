@@ -14,8 +14,6 @@ class XinlangSpiderItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     # 大类链接和url,如新闻　体育等
-    parentUrl = scrapy.Field()
-    parentTitle = scrapy.Field()
     title = scrapy.Field()
     # 小类链接和url，如新闻下面的国内　社会等
     # subUrl = scrapy.Field()
@@ -30,4 +28,6 @@ class XinlangSpiderItem(scrapy.Item):
     source = scrapy.Field()
     content = scrapy.Field()
     time = scrapy.Field()
+    theme = scrapy.Field()
+    website = scrapy.Field()
     pass

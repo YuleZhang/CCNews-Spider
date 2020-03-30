@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from fake_useragent import UserAgent
-# Scrapy settings for XinLang_Spider project
+# Scrapy settings for News_Spider project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -9,10 +9,10 @@ from fake_useragent import UserAgent
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 ua=UserAgent()
-BOT_NAME = 'XinLang_Spider'
+BOT_NAME = 'News_Spider'
 
-SPIDER_MODULES = ['XinLang_Spider.spiders']
-NEWSPIDER_MODULE = 'XinLang_Spider.spiders'
+SPIDER_MODULES = ['News_Spider.spiders']
+NEWSPIDER_MODULE = 'News_Spider.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -52,16 +52,16 @@ DEFAULT_REQUEST_HEADERS = {
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 # SPIDER_MIDDLEWARES = {
-#    'XinLang_Spider.middlewares.XinlangSpiderSpiderMiddleware': 543,
+#    'News_Spider.middlewares.XinlangSpiderSpiderMiddleware': 543,
 # }
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-   'XinLang_Spider.middlewares.XinlangSpiderDownloaderMiddleware': 543
+   'News_Spider.middlewares.XinlangSpiderDownloaderMiddleware': 543
 }
 RETRY_HTTP_CODES = [404, 403]
-RETRY_TIMES = 3
+RETRY_TIMES = 1
 # BACKUP_HEADERS_HOST = ['feed.mix.sina.com.cn','finance.sina.com.cn']
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -71,10 +71,8 @@ RETRY_TIMES = 3
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# 'XinLang_Spider.pipelines.XinlangSpiderPipeline': 250,
 ITEM_PIPELINES = {
-
-   'XinLang_Spider.pipelines.XinlangSpiderPipeline': 400,
+   'News_Spider.pipelines.XinlangSpiderPipeline': 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

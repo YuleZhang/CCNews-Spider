@@ -48,7 +48,7 @@ def addRow(info):
     i = i + 1
 
 if __name__ == "__main__":
-    img = Image.open('img/sample.png')  # 打开图片
+    img = Image.open('img/good_sample.png')  # 打开图片
     photo = ImageTk.PhotoImage(img)  # 用PIL模块的PhotoImage打开
     imglabel = Label(lbPic, image=photo)
     imglabel.place(x=0,y=0)

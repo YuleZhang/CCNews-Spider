@@ -7,26 +7,12 @@
 import pandas as pd
 import pymysql
 
-def make_table_sql(df):
-    sql_insert = 'title VARCHAR(200),content VARCHAR(1000),url VARCHAR(100),date VARCHAR(20),source VARCHAR(100)'
-    df["content"] = df.apply(lambda x: x['content'][:300], axis=1)
-    columns = df.columns.tolist()
-    types = df.ftypes
-    # 添加id 制动递增主键模式
-    make_table = []
-    for item in columns:
-        if 'int' in types[item]:
-            char = item + ' INT'
-        elif 'float' in types[item]:
-            char = item + ' FLOAT'
-        elif 'object' in types[item]:
-            char = item + ' VARCHAR(255)'
-        elif 'datetime' in types[item]:
-            char = item + ' DATETIME'
-
-        make_table.append(char)
-    print(sql_insert)
-    return sql_insert
+def parse_content(row):
+    try:
+        ans = row['content'][:300]
+        return ans
+    except:
+        return row['content']
 
 # csv 格式输入 mysql 中
 
@@ -39,6 +25,7 @@ def csv2mysql(user,password,db_name, table_name, df):
         table_name {str} -- 数据库名称
         df {dataframe} -- 要存的数据
     """
+    df["content"] = df.apply(lambda x: parse_content(x), axis=1)
     print("开始将数据导入数据库中")
     # 连接database
     conn = pymysql.connect(host="localhost", user=user,password=password)
@@ -50,8 +37,8 @@ def csv2mysql(user,password,db_name, table_name, df):
         # 选择连接database
         conn.select_db(db_name)
         # 创建table
-        cursor.execute('DROP TABLE IF EXISTS {}'.format(table_name))
-        cursor.execute('CREATE TABLE {}({})'.format(table_name,make_table_sql(df)))
+        # cursor.execute('DROP TABLE IF EXISTS {}'.format(table_name))
+        # cursor.execute('CREATE TABLE {}({})'.format(table_name,make_table_sql(df)))
         # 提取数据转list 这里有与pandas时间模式无法写入因此换成str 此时mysql上格式已经设置完成
         values = df.values.tolist()
         # 根据columns个数

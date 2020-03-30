@@ -10,11 +10,11 @@ from scrapy.spidermiddlewares.httperror import HttpError
 import time
 import random
 
-from XinLang_Spider import settings
+from News_Spider import settings
 
 
 class XinlangSpiderSpiderMiddleware(object):
-    # Not all methods need to be defined. If a method is not defined,
+    # Not all methods need to be defined. rIf a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
 

@@ -26,8 +26,12 @@
 
 最终采用PCA将高维数据降到两位，并保存生成的图片。
 
+### 可视化词云分析词频
+
+![](img/wordcloud.png)
+
 ### UI界面部分
 
 采用TKinter库显示聚类效果以及打印部分爬取得新闻信息，效果如下图
 
-![img](img/UIAns.jpg)
+![img](img/good_sample.png)

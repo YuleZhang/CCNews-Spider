@@ -13,27 +13,33 @@ import os
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from wordcloud import WordCloud
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from mysql_operate import csv2mysql
 plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus']=False #用来正常显示负号
-MYSQL_DB_NAME = 'SigNews'
-MYSQL_TB_NAME = 'newsItem'
+MYSQL_DB_NAME = 'ccnews'
+MYSQL_TB_NAME = 'news_item'
 MYSQL_HOST = 'localhost'
 MYSQL_PORT = 3306
 MYSQL_USER = 'root'
 MYSQL_PASSWORD = ''
+MYFONT = r'C:\\Windows\\Fonts\\simkai.ttf'   # 获取本地已安装字体
 
 def readNews(df):
     # 将csv文档中content列合并为txt，防止字符串过长溢出
     # 若文件已存在则跳过
     df = pd.read_csv("Dataset/test_news_data.csv", encoding='gbk')
     df = df.astype(object).where(pd.notnull(df), None)
+    df.fillna("", inplace=True)
+    df.drop_duplicates(['title'],inplace=True)
+    df['content'] = df['content'].dropna()
     print(df.head())
-    if os.path.exists("Dataset/newsContent.txt"):
-        return
     print('数据库导入')
     csv2mysql(MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB_NAME, MYSQL_TB_NAME, df)
+    if os.path.exists("Dataset/newsContent.txt"):
+        return
+    # csv2mysql(MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB_NAME, MYSQL_TB_NAME, df)
     with open('Dataset/newsContent.txt','a') as f:
         for index,row in df.iterrows():
             f.write(str(row['content'])+'\r\n')
@@ -55,7 +61,7 @@ def seg_word(sentence):
         seg_result.append(w)
     # 读取停用词文件
     stopwords = set()
-    fr = open('Dataset/stopwords.txt', 'r',encoding='utf-8')
+    fr = open('Dataset/cmStop_words.txt', 'r',encoding='utf-8')
     for word in fr:
         stopwords.add(word.strip())
     fr.close()
@@ -107,6 +113,15 @@ def get_all_vector(file_path,stop_words_set):
 
     docs_matrix = np.array(docs_vsm)
 
+def generate_wordcloud(news):
+    wc = WordCloud(font_path=MYFONT,background_color="black", width=1800, height=1000)
+    wc.generate(news)
+    wc.to_file('img/wordcloud.png')
+    plt.figure("词云图")
+    plt.imshow(wc)
+    plt.axis("off")
+    plt.show()
+
 if __name__ == "__main__":
     df = pd.read_csv("Dataset/test_news_data.csv", encoding='gbk')
 
@@ -117,6 +132,8 @@ if __name__ == "__main__":
         part = seg_word(str(row['content']))
         corpus.append(' '.join(part))
     # print(corpus)
+    # 打印词云效果
+    generate_wordcloud(" ".join(corpus))
     # 将文本中的词语转换为词频矩阵 矩阵元素a[i][j] 表示j词在i类文本下的词频
     vectorizer = CountVectorizer(max_features = 5000)
 
